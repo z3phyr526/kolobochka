@@ -28,7 +28,6 @@ h1{text-align:center;margin:4px 0;font-size:clamp(25px,4vw,38px)}
 .bottle-glass:after{content:"";position:absolute;bottom:8px;left:6px;right:6px;height:20px;background:#c6a16d55;border-radius:3px}
 .bottle-fragment{width:100px;height:100px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;pointer-events:none}
 .bottle-id{position:absolute;bottom:12px;z-index:4;background:#f3e6cae8;border:1px solid #987a56;border-radius:3px;padding:2px 8px;font:bold 12px Arial,sans-serif}
-.slot.correct{box-shadow:inset 0 0 0 4px #5f8a62,inset 0 2px 8px #65462955}
 .slot.over{outline:3px solid #f3d16b;outline-offset:-5px}
 .bottle-shelf{margin-top:18px;padding:12px 12px 16px;background:linear-gradient(90deg,#6d472c,#a7774d 12%,#8c5e3b 88%,#674329);border:7px solid #604027;border-radius:7px;box-shadow:0 10px 18px #38281955}
 .bottle-rack{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
@@ -40,15 +39,16 @@ h1{text-align:center;margin:4px 0;font-size:clamp(25px,4vw,38px)}
 @media(max-width:390px){.bottle-cell{height:88px}}
 .overlay{position:fixed;inset:0;background:#20170dcc;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
 .overlay.show{display:flex}.win{background:#f5e8d2;border:5px solid #8c6745;border-radius:9px;padding:28px;text-align:center;max-width:420px;box-shadow:0 15px 45px #0007}
+.win-screenshot{font:italic 16px Georgia,serif;color:#7a4d2c;margin:14px 0 0}
 @media(max-width:650px){.lab{padding:10px 7px}.rack{gap:5px}.slot{height:145px}.bottle-glass{width:65px;height:88px}.symbol-layer,.bottle-fragment{width:84px;height:84px}.slot-num{font-size:11px}.slot-hint{font-size:8px}}
 @media(max-width:390px){.slot{height:125px}.bottle-glass{width:55px;height:76px}.symbol-layer,.bottle-fragment{width:72px;height:72px}}
 </style></head>
 <body><main class="lab">
-<h1>Полуночный синтез</h1><p class="sub">Собери целые символы, перемещая колбы по стеллажу</p><div class="window"></div>
+<h1>Полуночный синтез</h1><div class="window"></div>
 <section class="shelf-wrap"><div class="shelf-title">СТЕЛЛАЖ</div><div class="rack" id="rack"></div></section>
 <section class="bottle-shelf"><div class="bottle-rack" id="bank"></div></section>
 </main>
-<div class="overlay" id="overlay"><div class="win"><h2>Поздравляю! Вам удалось найти слабость сущности!</h2><button onclick="closeWin()">Продолжить</button></div></div>
+<div class="overlay" id="overlay"><div class="win"><h2>Поздравляю! Вам удалось найти слабость сущности!</h2><p class="win-screenshot">Отправь скриншот кураторам)</p></div></div>
 <script>
 const rack=document.getElementById('rack'),bank=document.getElementById('bank');
 const N=12;let positions=Array(N).fill(null),selected=null,dragged=null,moves=0;
@@ -86,7 +86,7 @@ function render(){
  rack.innerHTML='';bank.innerHTML='';
  positions.forEach((id,slot)=>{
   const row=Math.floor(slot/4),el=document.createElement('div');
-  el.className='slot'+(id===slot?' correct':'');el.dataset.slot=slot;
+  el.className='slot';el.dataset.slot=slot;
   el.innerHTML=`${art(partFor(row,slot%4,0),'symbol-layer shelf-fragment')}${id===null?'':bottleHTML(id)}`;
   rack.appendChild(el);
  });
@@ -103,7 +103,10 @@ function render(){
  document.querySelectorAll('.slot,.bottle-cell').forEach(cell=>{
   cell.addEventListener('click',()=>{
    if(cell.classList.contains('slot'))chooseSlot(+cell.dataset.slot);
-   else {const b=cell.querySelector('.bottle');if(b)choose(+b.dataset.id)}
+   else {
+    if(selected!==null){returnBottleToBank(selected);}
+    else {const b=cell.querySelector('.bottle');if(b)choose(+b.dataset.id);}
+   }
   });
   cell.addEventListener('dragover',e=>{e.preventDefault();cell.classList.add('over')});
   cell.addEventListener('dragleave',()=>cell.classList.remove('over'));
@@ -135,7 +138,13 @@ function moveTo(slot,id){
  if(positions.every((v,i)=>v===i))document.getElementById('overlay').classList.add('show');
 }
 function returnBottleToBank(id){
- const from=positions.indexOf(id);if(from>=0){positions[from]=null;selected=null;moves++;render()}
+ const from=positions.indexOf(id);
+ if(from>=0){
+  positions[from]=null;
+  selected=null;
+  moves++;
+  render();
+ }
 }
 function shuffle(){
  const ids=Array.from({length:N},(_,i)=>i);
@@ -143,6 +152,5 @@ function shuffle(){
  while(ids.every((v,i)=>v===i));
  positions=Array(N).fill(null);selected=null;moves=0;render();
 }
-function closeWin(){document.getElementById('overlay').classList.remove('show')}
 shuffle();
 </script></body></html>
