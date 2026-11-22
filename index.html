@@ -1,117 +1,148 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#f4f6f8">
-<title>Колбочки — лабораторная головоломка</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Полуночный синтез</title>
 <style>
-:root{--bg:#f4f6f8;--ink:#202a35;--muted:#788592;--line:#dce3e9;--accent:#397d79;--accent2:#dff0ed;--white:#fff}
+:root{--ink:#34271e;--wood:#795236;--cream:#f4e8d4}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;justify-content:center}
-.app{width:min(100%,760px);padding:clamp(20px,5vw,42px) 20px 34px;display:flex;flex-direction:column;min-height:100vh}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
-.brand{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:750}
-.level{font-size:12px;color:var(--accent);background:var(--accent2);padding:8px 12px;border-radius:30px;font-weight:700}
-h1{font-size:clamp(30px,7vw,46px);letter-spacing:-.045em;line-height:1.05;margin:0 0 12px;font-weight:760}
-.sub{color:var(--muted);font-size:15px;line-height:1.55;margin:0;max-width:500px}
-.panel{background:var(--white);border:1px solid var(--line);border-radius:24px;padding:clamp(18px,4vw,30px);margin-top:28px;box-shadow:0 10px 30px #26374708}
-.hintrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:20px}
-.hint{font-size:13px;color:var(--muted)}
-.moves{font-size:12px;color:var(--muted);white-space:nowrap}
-.slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(6px,2vw,16px);align-items:end}
-.slot{min-width:0;text-align:center}
-.slotnum{font-size:11px;color:#a0aab4;margin-bottom:8px}
-.flask{width:100%;max-width:92px;height:clamp(112px,28vw,160px);margin:auto;position:relative;border:3px solid #b8c7ce;border-top:0;border-radius:8px 8px 23px 23px;background:linear-gradient(90deg,#ffffffaa,#ffffff22 45%,#ffffff99);overflow:hidden;cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s;touch-action:manipulation}
-.flask:before{content:"";position:absolute;top:0;left:25%;width:50%;height:13px;border:3px solid #b8c7ce;border-bottom:0;border-radius:5px 5px 0 0;transform:translateY(-2px);background:var(--bg)}
-.liquid{position:absolute;bottom:0;left:0;right:0;height:var(--fill);background:var(--color);opacity:.86;border-radius:0 0 17px 17px;transition:height .2s}
-.liquid:after{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:#ffffff55}
-.flask:after{content:"";position:absolute;left:12%;top:18px;bottom:12px;width:5px;border-radius:10px;background:#fff8}
-.flask.selected{transform:translateY(-9px);border-color:var(--accent);box-shadow:0 0 0 4px var(--accent2)}
-.flask.correct{border-color:#5a9a78}
-.scale{font-size:11px;color:var(--muted);margin-top:9px}
-.actions{display:flex;gap:10px;margin-top:25px}
-button{border:0;border-radius:14px;padding:14px 18px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:transform .12s,background .12s}
-button:active{transform:scale(.98)}
-.primary{background:var(--accent);color:white;flex:1}
-.secondary{background:#eef2f4;color:#56636e}
-.note{margin-top:17px;font-size:12px;color:var(--muted);text-align:center;line-height:1.5}
-footer{margin-top:auto;padding-top:30px;color:#a0aab4;font-size:11px;text-align:center;letter-spacing:.04em}
-.overlay{position:fixed;inset:0;background:#17232dcc;display:none;align-items:center;justify-content:center;padding:22px;z-index:5}
-.overlay.show{display:flex}
-.modal{background:white;border-radius:26px;padding:34px 26px;max-width:390px;width:100%;text-align:center;box-shadow:0 25px 80px #0003}
-.medal{font-size:46px;margin-bottom:12px}
-.modal h2{font-size:30px;margin:0 0 9px;letter-spacing:-.04em}
-.modal p{color:var(--muted);line-height:1.5;margin:0 0 22px}
-@media(max-width:420px){.app{padding-left:14px;padding-right:14px}.panel{padding:15px 10px}.flask{border-width:2px}.actions button{padding:13px 12px}}
-</style>
-</head>
-<body>
-<main class="app">
-<header><div class="brand">МИНИ-ЛАБОРАТОРИЯ</div><div class="level">ЗАДАНИЕ 01</div></header>
-<section>
-<h1>Колбочки</h1>
-<p class="sub">Небольшая лабораторная головоломка. Наведи порядок в образцах, расставив колбы по объёму жидкости.</p>
-</section>
-<section class="panel">
-<div class="hintrow"><div class="hint">От меньшего объёма к большему →</div><div class="moves" id="moves">Ходы: 0</div></div>
-<div class="slots" id="slots" aria-label="Колбы для сортировки"></div>
-<div class="actions">
-<button class="primary" id="reset">Перемешать</button>
-<button class="secondary" id="hintBtn">Подсказка</button>
-</div>
-<div class="note" id="message">Нажми на одну колбу, затем на другую, чтобы поменять их местами.</div>
-</section>
-<footer>ЛАБОРАТОРНАЯ · ГОЛОВОЛОМКА</footer>
+body{margin:0;min-height:100vh;color:var(--ink);font-family:Georgia,serif;background:linear-gradient(#d8d0bd 0 35%,#b9a58a 35% 100%)}
+.lab{max-width:1080px;margin:auto;padding:16px}
+h1{text-align:center;margin:4px 0;font-size:clamp(25px,4vw,38px)}
+.sub{text-align:center;font:14px Arial,sans-serif;margin:0 0 14px;color:#594838}
+.window{height:65px;max-width:420px;margin:0 auto 12px;border:8px solid #76563d;background:linear-gradient(90deg,transparent 49%,#76563d 49% 51%,transparent 51%),linear-gradient(transparent 48%,#76563d 48% 52%,transparent 52%),linear-gradient(#b8d0d0,#e9dfc7)}
+.shelf-wrap{background:linear-gradient(90deg,#6d472c,#a7774d 12%,#8c5e3b 88%,#674329);padding:12px;border:7px solid #604027;border-radius:7px;box-shadow:0 10px 18px #38281955}
+.shelf-title{text-align:center;color:#f8e8d2;font:bold 13px Arial,sans-serif;letter-spacing:.15em;margin-bottom:10px}
+.rack{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.slot{height:178px;position:relative;border:3px solid #5d3b25;border-radius:5px;background:linear-gradient(#e9d9bd,#d2b995);box-shadow:inset 0 2px 8px #65462955;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:manipulation}
+.slot:after{content:"";position:absolute;bottom:0;left:-2px;right:-2px;height:8px;background:#69452b;box-shadow:0 3px 3px #0003}
+.slot-num{position:absolute;top:5px;left:7px;font:bold 12px Arial,sans-serif;color:#67452e;z-index:4}
+.slot-hint{position:absolute;right:7px;top:5px;font:10px Arial,sans-serif;color:#7b6045;z-index:4}
+.symbol-layer{position:absolute;width:100px;height:100px;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+.shelf-fragment{opacity:.72}
+.bottle{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:grab;z-index:2;touch-action:none}
+.bottle:active{cursor:grabbing}
+.bottle.selected{background:#f9e9a044;outline:3px solid #e6bd4c;outline-offset:-6px}
+.bottle-glass{width:82px;height:108px;position:relative;border:2px solid #67848a;border-radius:12px 12px 18px 18px;background:linear-gradient(90deg,#ffffff55,#c4e2e566 45%,#ffffff66);box-shadow:inset -7px 0 10px #789da044;display:flex;align-items:center;justify-content:center}
+.bottle-glass:before{content:"";position:absolute;top:-18px;width:29px;height:19px;border:2px solid #67848a;border-bottom:0;border-radius:5px 5px 0 0;background:#d8ecec}
+.bottle-glass:after{content:"";position:absolute;bottom:8px;left:6px;right:6px;height:20px;background:#c6a16d55;border-radius:3px}
+.bottle-fragment{width:100px;height:100px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;pointer-events:none}
+.bottle-id{position:absolute;bottom:12px;z-index:4;background:#f3e6cae8;border:1px solid #987a56;border-radius:3px;padding:2px 8px;font:bold 12px Arial,sans-serif}
+.slot.correct{box-shadow:inset 0 0 0 4px #5f8a62,inset 0 2px 8px #65462955}
+.slot.over{outline:3px solid #f3d16b;outline-offset:-5px}
+.bottle-shelf{margin-top:18px;padding:12px 12px 16px;background:linear-gradient(90deg,#6d472c,#a7774d 12%,#8c5e3b 88%,#674329);border:7px solid #604027;border-radius:7px;box-shadow:0 10px 18px #38281955}
+.bottle-rack{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.bottle-cell{height:125px;position:relative;display:flex;align-items:center;justify-content:center;background:linear-gradient(#e9d9bd,#d2b995);border:2px solid #5d3b25;border-radius:5px;box-shadow:inset 0 2px 8px #65462955;touch-action:manipulation}
+.bottle-cell:after{content:"";position:absolute;bottom:0;left:0;right:0;height:7px;background:#69452b}
+.bottle-cell .bottle{position:absolute}
+.bottle-cell.over{outline:3px solid #f3d16b;outline-offset:-5px}
+@media(max-width:650px){.bottle-rack{gap:4px}.bottle-cell{height:105px}.bottle-shelf{padding:8px 6px 12px}}
+@media(max-width:390px){.bottle-cell{height:88px}}
+.overlay{position:fixed;inset:0;background:#20170dcc;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
+.overlay.show{display:flex}.win{background:#f5e8d2;border:5px solid #8c6745;border-radius:9px;padding:28px;text-align:center;max-width:420px;box-shadow:0 15px 45px #0007}
+@media(max-width:650px){.lab{padding:10px 7px}.rack{gap:5px}.slot{height:145px}.bottle-glass{width:65px;height:88px}.symbol-layer,.bottle-fragment{width:84px;height:84px}.slot-num{font-size:11px}.slot-hint{font-size:8px}}
+@media(max-width:390px){.slot{height:125px}.bottle-glass{width:55px;height:76px}.symbol-layer,.bottle-fragment{width:72px;height:72px}}
+</style></head>
+<body><main class="lab">
+<h1>Полуночный синтез</h1><p class="sub">Собери целые символы, перемещая колбы по стеллажу</p><div class="window"></div>
+<section class="shelf-wrap"><div class="shelf-title">СТЕЛЛАЖ</div><div class="rack" id="rack"></div></section>
+<section class="bottle-shelf"><div class="bottle-rack" id="bank"></div></section>
 </main>
-<div class="overlay" id="win">
-<div class="modal"><div class="medal">✦</div><h2>Отличная работа!</h2><p id="winText">Все образцы стоят в правильном порядке. Лаборатория в порядке.</p><button class="primary" id="again">Сыграть ещё раз</button></div>
-</div>
+<div class="overlay" id="overlay"><div class="win"><h2>Поздравляю! Вам удалось найти слабость сущности!</h2><button onclick="closeWin()">Продолжить</button></div></div>
 <script>
-const fills=[18,32,47,63,79];
-const colors=['#80b9b0','#7da6c8','#b49acb','#d5a66d','#d77f82'];
-let order=[],selected=-1,moves=0;
-const slots=document.getElementById('slots'),movesEl=document.getElementById('moves'),message=document.getElementById('message');
-function shuffle(){
- order=[0,1,2,3,4];
- // Fisher-Yates, retry if accidentally solved
- do { for(let i=order.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];} } while(order.every((v,i)=>v===i));
- selected=-1;moves=0;render();message.textContent='Нажми на одну колбу, затем на другую, чтобы поменять их местами.';
- document.getElementById('win').classList.remove('show');
+const rack=document.getElementById('rack'),bank=document.getElementById('bank');
+const N=12;let positions=Array(N).fill(null),selected=null,dragged=null,moves=0;
+const partitions = [
+ [
+  ['M20 20H80 M20 20V80','M80 20V80 M20 80H80 M20 20L80 80 M80 20L20 80'],
+  ['M80 20V80 M20 80H80','M20 20H80 M20 20V80 M20 20L80 80 M80 20L20 80'],
+  ['M20 20L80 80 M80 20L20 80','M20 20H80 M80 20V80 M20 80H80 M20 20V80'],
+  ['M20 20H80 M80 20V80 M20 20L80 80','M20 20V80 M20 80H80 M80 20L20 80']
+ ],
+ [
+  ['M50 14A36 36 0 1 0 50 86','M50 14A36 36 0 1 1 50 86 M25 30H75L25 70H75'],
+  ['M50 14A36 36 0 0 1 50 86 M25 30H75','M50 14A36 36 0 0 0 50 86 M25 70H75 M75 30L25 70'],
+  ['M25 30H75 M25 70H75','M50 14A36 36 0 1 0 50 86 M50 14A36 36 0 1 1 50 86 M75 30L25 70'],
+  ['M50 14A36 36 0 1 0 50 86 M75 30L25 70','M50 14A36 36 0 1 1 50 86 M25 30H75 M25 70H75']
+ ],
+ [
+  ['M50 10L74 82 M50 10L26 82 M50 10L90 36','M50 10L10 36 M10 36L90 36 M10 36L74 82 M90 36L26 82 M74 82L26 82 M74 82L10 36 M26 82L90 36'],
+  ['M10 36L90 36 M10 36L74 82','M50 10L74 82 M50 10L26 82 M50 10L90 36 M50 10L10 36 M90 36L26 82 M74 82L26 82 M74 82L10 36 M26 82L90 36'],
+  ['M50 10L10 36 M90 36L26 82 M74 82L26 82','M50 10L74 82 M50 10L26 82 M50 10L90 36 M10 36L90 36 M10 36L74 82 M74 82L10 36 M26 82L90 36'],
+  ['M50 10L74 82 M50 10L26 82 M10 36L90 36 M74 82L10 36','M50 10L90 36 M50 10L10 36 M10 36L74 82 M90 36L26 82 M74 82L26 82 M26 82L90 36']
+ ]
+];
+function partFor(row,index,which){
+ const color='#684b32';
+ return `<path d="${partitions[row][index][which]}" fill="none" stroke="${color}" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+function art(mark,cls){return `<svg class="${cls}" viewBox="0 0 100 100" aria-hidden="true">${mark}</svg>`}
+function bottleHTML(id){
+ const row=Math.floor(id/4),within=id%4;
+ return `<div class="bottle" draggable="true" data-id="${id}" aria-label="Колба">
+ <div class="bottle-glass"></div>${art(partFor(row,within,1),'bottle-fragment')}</div>`;
 }
 function render(){
- slots.innerHTML='';
- order.forEach((v,i)=>{
-  const wrap=document.createElement('div');wrap.className='slot';
-  const num=document.createElement('div');num.className='slotnum';num.textContent=String(i+1).padStart(2,'0');
-  const flask=document.createElement('button');flask.className='flask'+(selected===i?' selected':'')+(order.every((x,k)=>x===k)?' correct':'');
-  flask.setAttribute('aria-label',`Колба с объёмом ${fills[v]} процентов, позиция ${i+1}`);
-  flask.style.setProperty('--fill',fills[v]+'%');flask.style.setProperty('--color',colors[v]);
-  const liquid=document.createElement('span');liquid.className='liquid';flask.appendChild(liquid);
-  flask.addEventListener('click',()=>choose(i));
-  const scale=document.createElement('div');scale.className='scale';scale.textContent='ОБРАЗЕЦ';
-  wrap.append(num,flask,scale);slots.appendChild(wrap);
+ rack.innerHTML='';bank.innerHTML='';
+ positions.forEach((id,slot)=>{
+  const row=Math.floor(slot/4),el=document.createElement('div');
+  el.className='slot'+(id===slot?' correct':'');el.dataset.slot=slot;
+  el.innerHTML=`${art(partFor(row,slot%4,0),'symbol-layer shelf-fragment')}${id===null?'':bottleHTML(id)}`;
+  rack.appendChild(el);
  });
- movesEl.textContent='Ходы: '+moves;
+ const remaining=Array.from({length:N},(_,id)=>id).filter(id=>!positions.includes(id));
+ remaining.forEach(id=>{
+  const cell=document.createElement('div');cell.className='bottle-cell';cell.dataset.bank='1';
+  cell.innerHTML=bottleHTML(id);bank.appendChild(cell);
+ });
+ document.querySelectorAll('.bottle').forEach(b=>{
+  b.addEventListener('click',e=>{e.stopPropagation();choose(+b.dataset.id)});
+  b.addEventListener('dragstart',e=>{dragged=+b.dataset.id;e.dataTransfer.setData('text/plain',String(dragged))});
+  b.addEventListener('dragend',()=>{dragged=null});
+ });
+ document.querySelectorAll('.slot,.bottle-cell').forEach(cell=>{
+  cell.addEventListener('click',()=>{
+   if(cell.classList.contains('slot'))chooseSlot(+cell.dataset.slot);
+   else {const b=cell.querySelector('.bottle');if(b)choose(+b.dataset.id)}
+  });
+  cell.addEventListener('dragover',e=>{e.preventDefault();cell.classList.add('over')});
+  cell.addEventListener('dragleave',()=>cell.classList.remove('over'));
+  cell.addEventListener('drop',e=>{
+   e.preventDefault();cell.classList.remove('over');
+   const id=dragged??Number(e.dataTransfer.getData('text/plain'));
+   if(cell.classList.contains('slot'))moveTo(+cell.dataset.slot,id);
+   else returnBottleToBank(id);
+  });
+ });
 }
-function choose(i){
- if(selected===-1){selected=i;message.textContent='Теперь выбери вторую колбу для обмена.';render();return;}
- if(selected===i){selected=-1;render();return;}
- [order[selected],order[i]]=[order[i],order[selected]];selected=-1;moves++;render();
- if(order.every((v,k)=>v===k)){
-  document.getElementById('winText').textContent=`Ты расставил все образцы правильно за ${moves} ходов. Лаборатория в порядке!`;
-  document.getElementById('win').classList.add('show');
-  message.textContent='Все колбы на своих местах!';
- }else message.textContent='Хорошо! Продолжай сортировку.';
+function choose(id){
+ if(selected===null){selected=id;render();const b=document.querySelector(`.bottle[data-id="${id}"]`);if(b)b.classList.add('selected');return}
+ if(selected===id){selected=null;render();return}
+ const target=positions.indexOf(id);
+ if(target>=0)moveTo(target,selected);
+ else {const from=positions.indexOf(selected);if(from>=0){positions[from]=null;} selected=null;render();}
 }
-document.getElementById('reset').addEventListener('click',shuffle);
-document.getElementById('again').addEventListener('click',shuffle);
-document.getElementById('hintBtn').addEventListener('click',()=>{
- const i=order.findIndex((v,k)=>v!==k);
- if(i<0)return;
- message.textContent=`Подсказка: на место ${i+1} должна встать колба с объёмом ${fills[i]}%.`;
-});
+function chooseSlot(slot){
+ if(selected===null){if(positions[slot]!==null)choose(positions[slot]);return}
+ moveTo(slot,selected);
+}
+function moveTo(slot,id){
+ const from=positions.indexOf(id);
+ if(from===slot){selected=null;render();return}
+ const displaced=positions[slot];
+ if(from>=0)positions[from]=displaced;
+ positions[slot]=id;selected=null;moves++;render();
+ if(positions.every((v,i)=>v===i))document.getElementById('overlay').classList.add('show');
+}
+function returnBottleToBank(id){
+ const from=positions.indexOf(id);if(from>=0){positions[from]=null;selected=null;moves++;render()}
+}
+function shuffle(){
+ const ids=Array.from({length:N},(_,i)=>i);
+ do{for(let i=N-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}}
+ while(ids.every((v,i)=>v===i));
+ positions=Array(N).fill(null);selected=null;moves=0;render();
+}
+function closeWin(){document.getElementById('overlay').classList.remove('show')}
 shuffle();
-</script>
-</body>
-</html>
+</script></body></html>
